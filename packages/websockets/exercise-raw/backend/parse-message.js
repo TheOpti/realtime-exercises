@@ -15,7 +15,7 @@ function parseMessage(buffer) {
   const isMasked = secondByte >>> 7 === 1;
   // we should only be seeing masked frames from the browser
   if (!isMasked) {
-    throw new Error("we only care about masked frames from the browser");
+    throw new Error('we only care about masked frames from the browser');
   }
 
   const maskingKey = buffer.readUInt32BE(2);
@@ -52,7 +52,7 @@ function parseMessage(buffer) {
     response.writeUInt8(mask ^ source, i);
   }
 
-  return JSON.parse(response.toString("utf8"));
+  return JSON.parse(response.toString('utf8'));
 }
 
 export default parseMessage;

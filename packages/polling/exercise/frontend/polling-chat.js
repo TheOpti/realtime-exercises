@@ -1,5 +1,5 @@
-const chat = document.getElementById("chat");
-const msgs = document.getElementById("msgs");
+const chat = document.getElementById('chat');
+const msgs = document.getElementById('msgs');
 
 // let's store all current messages here
 let allChat = [];
@@ -8,10 +8,10 @@ let allChat = [];
 const INTERVAL = 3000;
 
 // a submit listener on the form in the HTML
-chat.addEventListener("submit", function (e) {
+chat.addEventListener('submit', function (e) {
   e.preventDefault();
   postNewMsg(chat.elements.user.value, chat.elements.text.value);
-  chat.elements.text.value = "";
+  chat.elements.text.value = '';
 });
 
 async function postNewMsg(user, text) {
@@ -30,7 +30,7 @@ function render() {
   const html = allChat.map(({ user, text, time, id }) =>
     template(user, text, time, id)
   );
-  msgs.innerHTML = html.join("\n");
+  msgs.innerHTML = html.join('\n');
 }
 
 // given a user and a msg, it returns an HTML string to render to the UI

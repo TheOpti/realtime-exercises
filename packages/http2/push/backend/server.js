@@ -1,9 +1,9 @@
-import http2 from "http2";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import handler from "serve-handler";
-import nanobuffer from "nanobuffer";
+import http2 from 'http2';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import handler from 'serve-handler';
+import nanobuffer from 'nanobuffer';
 
 let connections = [];
 
@@ -11,8 +11,8 @@ const msg = new nanobuffer(50);
 const getMsgs = () => Array.from(msg).reverse();
 
 msg.push({
-  user: "brian?",
-  text: "hi",
+  user: 'brian?',
+  text: 'hi',
   time: Date.now(),
 });
 
@@ -21,20 +21,20 @@ msg.push({
 // http2 only works over HTTPS
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const server = http2.createSecureServer({
-  cert: fs.readFileSync(path.join(__dirname, "/../server.crt")),
-  key: fs.readFileSync(path.join(__dirname, "/../key.pem")),
+  cert: fs.readFileSync(path.join(__dirname, '/../server.crt')),
+  key: fs.readFileSync(path.join(__dirname, '/../key.pem')),
 });
 
-server.on("stream", (stream, headers) => {
-  const method = headers[":method"];
-  const path = headers[":path"];
+server.on('stream', (stream, headers) => {
+  const method = headers[':method'];
+  const path = headers[':path'];
 
   // streams will open for everything, we want just GETs on /msgs
-  if (path === "/msgs" && method === "GET") {
+  if (path === '/msgs' && method === 'GET') {
     // immediately respond with 200 OK and encoding
     stream.respond({
-      ":status": 200,
-      "content-type": "text/plain; charset=utf-8",
+      ':status': 200,
+      'content-type': 'text/plain; charset=utf-8',
     });
 
     // write the first response
@@ -44,22 +44,22 @@ server.on("stream", (stream, headers) => {
     connections.push(stream);
 
     // when the connection closes, stop keeping track of it
-    stream.on("close", () => {
+    stream.on('close', () => {
       connections = connections.filter((s) => s !== stream);
     });
   }
 });
 
-server.on("request", async (req, res) => {
-  const path = req.headers[":path"];
-  const method = req.headers[":method"];
+server.on('request', async (req, res) => {
+  const path = req.headers[':path'];
+  const method = req.headers[':method'];
 
-  if (path !== "/msgs") {
+  if (path !== '/msgs') {
     // handle the static assets
     return handler(req, res, {
-      public: "./frontend",
+      public: './frontend',
     });
-  } else if (method === "POST") {
+  } else if (method === 'POST') {
     // get data out of post
     const buffers = [];
     for await (const chunk of req) {

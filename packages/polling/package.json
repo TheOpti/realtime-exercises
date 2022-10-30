@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node pause-on-unfocus/backend/server.js",
-    "dev": "nodemon pause-on-unfocus/backend/server.js"
+    "start": "node exercise/backend/server.js",
+    "dev": "nodemon exercise/backend/server.js"
   },
   "keywords": [],
   "type": "module",
