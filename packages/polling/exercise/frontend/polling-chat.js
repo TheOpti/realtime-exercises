@@ -1,11 +1,19 @@
 const chat = document.getElementById('chat');
 const msgs = document.getElementById('msgs');
+const loader = document.getElementById('loader');
 
 // let's store all current messages here
 let allChat = [];
 
+let timeToMakeNextReq = 0;
+
+let failedRequests = 0;
+
 // the interval to poll at in milliseconds
 const INTERVAL = 3000;
+
+// backoff time
+const BACKOFF = 4000;
 
 // a submit listener on the form in the HTML
 chat.addEventListener('submit', function (e) {
@@ -15,13 +23,35 @@ chat.addEventListener('submit', function (e) {
 });
 
 async function postNewMsg(user, text) {
-  // post to /poll a new message
-  // write code here
+  loader.style.visibility = 'visible';
+
+  const result = await fetch('/poll', {
+    method: 'POST',
+    body: JSON.stringify({
+      user,
+      text,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const parsedResponse = result.json();
+  loader.style.visibility = 'hidden';
+  console.log('Response: ', parsedResponse);
 }
 
 async function getNewMsgs() {
-  // poll the server
-  // write code here
+  try {
+    const result = await fetch('/poll');
+    const { messages = [] } = await result.json();
+    allChat = messages;
+  } catch (error) {
+    console.log('Error ', error);
+    failedRequests++;
+  }
+
+  render();
 }
 
 function render() {
@@ -37,5 +67,14 @@ function render() {
 const template = (user, msg) =>
   `<li class="collection-item"><span class="badge">${user}</span>${msg}</li>`;
 
-// make the first request
-getNewMsgs();
+
+async function rafTimer(time) {
+  if (timeToMakeNextReq < time) {
+    timeToMakeNextReq = timeToMakeNextReq + INTERVAL + failedRequests * BACKOFF;
+    await getNewMsgs();
+  }
+
+  requestAnimationFrame(rafTimer);
+}
+
+requestAnimationFrame(rafTimer);
