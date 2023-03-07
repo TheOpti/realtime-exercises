@@ -21,8 +21,8 @@ msg.push({
 // http2 only works over HTTPS
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const server = http2.createSecureServer({
-  cert: fs.readFileSync(path.join(__dirname, '/../server.crt')),
-  key: fs.readFileSync(path.join(__dirname, '/../key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, '/../../server.crt')),
+  key: fs.readFileSync(path.join(__dirname, '/../../key.pem')),
 });
 
 server.on('stream', (stream, headers) => {
