@@ -34,13 +34,13 @@ Disadvantages:
 - reliable message ordering can be an issue
 - confirmation of message receipt by one client instance may also cause another client instance to never receive an expected message at all
 
-### Polling methods
+## Polling methods
 
 - setTimeout
 - requestAnimationFrame
 - backoff & retry
 
-##### setTimeout
+### setTimeout
 
 ```javascript
 async function getNewMsgs() {
@@ -61,7 +61,7 @@ async function getNewMsgs() {
 getNewMsgs();
 ```
 
-##### requestAnimationFrame
+### requestAnimationFrame
 
 `requestAnimationFrame` runs only when the main JS thread is idle, 
 guaranteeing you're not interrupting any repaints. 
@@ -82,7 +82,7 @@ async function rafTimer(time) {
 requestAnimationFrame(rafTimer);
 ```
 
-##### backoff & retry
+### backoff & retry
 
 A backoff algorithm makes sure that when a target system can
 not serve a request it is not flooded with subsequent retries. 
@@ -121,3 +121,20 @@ async function rafTimer(time) {
 
 requestAnimationFrame(rafTimer);
 ```
+
+## HTTP2
+
+HTTP/2 does not work without HTTPS because all the browsers enforce that it must be a secure connection.
+Thus, before working with examples from http2, we need to create ssl certificate:
+
+```
+openssl req -new -newkey rsa:2048 -new -nodes -keyout key.pem -out csr.pem
+openssl x509 -req -days 365 -in csr.pem -signkey key.pem -out server.crt
+```
+
+HTTP2 introduces new binary framing mechanism which changes how the data is exchanged between the client and server.
+
+- Stream: A bidirectional flow of bytes within an established connection, which may carry one or more messages.
+- Message: A complete sequence of frames that map to a logical request or response message.
+- Frame: The smallest unit of communication in HTTP/2, each containing a frame header, which at a minimum identifies the stream to which the frame belongs.
+
