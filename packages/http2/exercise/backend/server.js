@@ -25,15 +25,30 @@ msg.push({
 // http2 only works over HTTPS
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const server = http2.createSecureServer({
-  cert: fs.readFileSync(path.join(__dirname, '/../server.crt')),
-  key: fs.readFileSync(path.join(__dirname, '/../key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, '/../../server.crt')),
+  key: fs.readFileSync(path.join(__dirname, '/../../key.pem')),
 });
 
-/*
- *
- * Code goes here
- *
- */
+server.on('stream', (stream, headers) => {
+  const method = headers[':method'];
+  const path = headers[':path'];
+
+  if (path === '/msgs' && method === 'GET') {
+    console.debug('Connected to stream: ', stream.id);
+    stream.respond({
+      ':status': 200,
+      'content-type': 'text/plain; charset=utf-8',
+    });
+
+    stream.write(JSON.stringify({ msg: getMsgs() }));
+
+    connections.push(stream);
+
+    stream.on('close', () => {
+      connections = connections.filter((s) => s !== stream);
+    });
+  }
+});
 
 server.on('request', async (req, res) => {
   const path = req.headers[':path'];
@@ -53,11 +68,17 @@ server.on('request', async (req, res) => {
     const data = Buffer.concat(buffers).toString();
     const { user, text } = JSON.parse(data);
 
-    /*
-     *
-     * some code goes here
-     *
-     */
+    msg.push({
+      user,
+      text,
+      time: Date.now(),
+    });
+
+    res.end();
+
+    connections.forEach((stream) => {
+      stream.write(JSON.stringify({ msg: getMsgs() }));
+    });
   }
 });
 

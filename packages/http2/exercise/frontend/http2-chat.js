@@ -12,31 +12,55 @@ chat.addEventListener('submit', function (e) {
 });
 
 async function postNewMsg(user, text) {
-  const data = {
-    user,
-    text,
-  };
-
-  // request options
-  const options = {
+  await fetch('/msgs', {
     method: 'POST',
-    body: JSON.stringify(data),
+    body: JSON.stringify({
+      user,
+      text,
+    }),
     headers: {
       'Content-Type': 'application/json',
     },
-  };
-
-  // send POST request
-  // we're not sending any json back, but we could
-  await fetch('/msgs', options);
+  });
 }
 
 async function getNewMsgs() {
-  /*
-   *
-   * code goes here
-   *
-   */
+  console.log('getNewMsgs()');
+  let reader;
+  const utf8Decoder = new TextDecoder('utf-8');
+  try {
+    const res = await fetch('/msgs');
+    reader = res.body.getReader();
+  } catch (e) {
+    console.log('connection error', e);
+  }
+  let done;
+  presence.innerText = '🟢';
+  do {
+    console.log('inside do-while loop');
+    let readerResponse;
+    try {
+      readerResponse = await reader.read();
+    } catch (e) {
+      console.error('reader failed', e);
+      presence.innerText = '🔴';
+      return;
+    }
+    done = readerResponse.done;
+    const chunk = utf8Decoder.decode(readerResponse.value, { stream: true });
+    if (chunk) {
+      try {
+        const json = JSON.parse(chunk);
+        allChat = json.msg;
+        render();
+      } catch (e) {
+        console.error('parse error', e);
+      }
+    }
+    console.log('done', done);
+  } while (!done);
+
+  presence.innerText = '🔴';
 }
 
 function render() {
