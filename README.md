@@ -136,5 +136,33 @@ HTTP2 introduces new binary framing mechanism which changes how the data is exch
 
 - Stream: A bidirectional flow of bytes within an established connection, which may carry one or more messages.
 - Message: A complete sequence of frames that map to a logical request or response message.
-- Frame: The smallest unit of communication in HTTP/2, each containing a frame header, which at a minimum identifies the stream to which the frame belongs.
+- Frame: The smallest unit of communication in HTTP/2, each containing a frame header, which 
+at a minimum identifies the stream to which the frame belongs.
 
+## WebSockets
+
+The WebSocket protocol, described in the specification RFC 6455, provides 
+a way to exchange data between browser and server via a persistent 
+connection. The data can be passed in both directions as “packets”,
+without breaking the connection and the need of additional HTTP-requests.
+
+```javascript
+let socket = new WebSocket("ws://javascript.info");
+```
+
+WebSocket advantages:
+- WebSockets keeps a unique connection open while eliminating the latency 
+problems that arise with long polling.
+- Full-duplex asynchronous messaging is supported so that both the 
+client and the server can stream messages to each other independently.
+- WebSockets generally do not use XMLHttpRequest, and as such, headers 
+are not sent on each server request. This, in turn, reduces the size of data payloads.
+- WebSockets pass through most firewalls without any reconfiguration 
+and have an origin-based security model.
+
+WebSocket disadvantages
+- WebSockets don’t automatically recover when connections are 
+terminated – this is something you need to implement yourself, 
+and is part of the reason why there are many client-side libraries in existence.
+- Browsers older than 2011 aren’t able to support WebSocket 
+connections - but this is increasingly irrelevant.
