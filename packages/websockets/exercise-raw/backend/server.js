@@ -24,11 +24,29 @@ const server = http.createServer((request, response) => {
   });
 });
 
-/*
- *
- * your code goes here
- *
- */
+// under server creation
+server.on('upgrade', function (req, socket) {
+  if (req.headers['upgrade'] !== 'websocket') {
+    // we only care about websockets
+    socket.end('HTTP/1.1 400 Bad Request');
+    return;
+  }
+
+  const acceptKey = req.headers['sec-websocket-key'];
+  const acceptValue = generateAcceptValue(acceptKey);
+  const headers = [
+    'HTTP/1.1 101 Web Socket Protocol Handshake',
+    'Upgrade: WebSocket',
+    'Connection: Upgrade',
+    `Sec-WebSocket-Accept: ${acceptValue}`,
+    'Sec-WebSocket-Protocol: json',
+    '\r\n',
+  ];
+
+  socket.write(headers.join('\r\n'));
+
+  console.log('upgrade requested!');
+});
 
 const port = process.env.PORT || 8080;
 server.listen(port, () =>
