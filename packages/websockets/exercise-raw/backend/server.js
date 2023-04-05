@@ -44,8 +44,30 @@ server.on('upgrade', function (req, socket) {
   ];
 
   socket.write(headers.join('\r\n'));
+  socket.write(objToResponse({ msg: getMsgs() }));
+  connections.push(socket);
 
-  console.log('upgrade requested!');
+  socket.on('data', (buffer) => {
+    const message = parseMessage(buffer);
+
+    if (message) {
+      msg.push({
+        user: message.user,
+        text: message.text,
+        time: Date.now(),
+      });
+
+      connections.forEach((c) => {
+        c.write(objToResponse({ msg: getMsgs() }));
+      });
+    } else if (message === null) {
+      socket.end();
+    }
+  });
+
+  socket.on('end', () => {
+    connections = connections.filter(s => s !== socket);
+  });
 });
 
 const port = process.env.PORT || 8080;
